@@ -16,6 +16,15 @@
     "baseUrl": ".",
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts", "common/**/*.ts", "playwright.config.ts"],
+  "include": [
+    "pages/**/*.ts",
+    "tests/**/*.ts",
+    "common/**/*.ts",
+    "services/**/*.ts",
+    "fixtures/**/*.ts",
+    "playwright/**/*.ts",
+    "playwright.config.ts",
+    "auth/auth.setup.ts"
+  ],
   "exclude": ["node_modules", "dist", "playwright-report", "test-results"]
 }
