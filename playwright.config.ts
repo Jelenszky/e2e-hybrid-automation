@@ -34,8 +34,8 @@ export default defineConfig({
     /* Reuse storage state with accepted cookies */
     storageState: 'auth/.auth/cookies.json',
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    /* Collect trace for all failed tests in CI for visual debugging */
+    trace: process.env.CI ? 'retain-on-failure' : 'on-first-retry',
   },
 
   /* Configure projects for major browsers */
