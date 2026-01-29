@@ -31,20 +31,26 @@
 
 ## Critical Developer Workflows
 
-### UI Tests
+### Test Execution
 
 ```bash
-npx playwright test tests/cookieConsent.spec.ts         # Cookie tests
-npx playwright test tests/ui/registration.spec.ts       # Registration flow
-npx playwright test                                      # All tests (17 total)
-```
-
-### API Tests
-
-```bash
+npx playwright test                                      # Run all tests
+npx playwright test tests/cookieConsent.spec.ts         # Cookie consent tests
+npx playwright test tests/ui/registration.spec.ts       # User registration flow (UI)
 npx playwright test tests/api/                          # API tests only
-npx playwright test tests/api/example.api.spec.ts       # Specific API test
+npx playwright test --debug                             # Debug mode
+npx playwright show-report                              # View HTML report
 ```
+
+### Test Data Generation
+
+Tests use **faker.js** for all data:
+
+- `UserDataFactory.generateUser()` - Complete user with faker-generated name, email, address
+- `UserDataFactory.generateUserWithCustomAddress()` - User with optional address customization
+- `AddressBuilder` - Fluent builder for Address objects with sensible faker defaults
+
+**Zero hardcoded test data** - all values generated at runtime via factories.
 
 ### Important: Barrel File Imports (Use These!)
 
@@ -52,7 +58,7 @@ npx playwright test tests/api/example.api.spec.ts       # Specific API test
 - **API tests**: `import { apiTest, expect } from '../../fixtures';`
 - **Pages**: `import { HomePage, LoginPage, LOCATORS } from '../../pages';`
 - **Services**: `import { ProductService, BrandService } from '../../services';`
-- **Constants**: `import { API_ENDPOINTS, ERROR_MESSAGES, TIMEOUTS } from '../../common/constants';`
+- **Test Data**: `import { UserDataFactory, AddressBuilder } from '../../common/testData';`
 - **Never import from individual files** - always use barrel files (index.ts)
 
 ---
@@ -63,20 +69,28 @@ npx playwright test tests/api/example.api.spec.ts       # Specific API test
 
 ```typescript
 import { test, expect } from '../../fixtures';
+import { UserDataFactory } from '../../common/testData';
 
-test('user action', async ({ page, homePage, loginPage }) => {
-  await page.goto('https://automationexercise.com/');
+test('user registration', async ({ homePage, loginPage }) => {
+  // Generate realistic test data - no hardcoded values
+  const testUser = UserDataFactory.generateUser();
+
+  await homePage.navigate();
   await homePage.acceptCookiesIfPresent(); // Auto-inherited from BasePage
+
+  // Use page object methods and locators
   await homePage.navigateToSignupLogin();
-  // Continue test...
+  await loginPage.fillSignupForm(testUser);
+  await expect(loginPage.accountCreatedText).toBeVisible();
 });
 ```
 
 **Key Points:**
 
 - All pages extend `BasePage` (inherits `acceptCookiesIfPresent()`)
-- Use `LOCATORS` from barrel import (colocated with pages)
+- Use `LOCATORS` from barrel import (colocated with pages in `pages/locators.ts`)
 - Pages contain components (e.g., `ProductListComponent`) for reusable UI blocks
+- Page methods accept domain objects (e.g., `UserRegistrationData`) not inline objects
 - Page files use local imports to avoid circular deps: `import { BasePage } from './BasePage'`
 
 ### 2. API Test Pattern (Service Factory)
@@ -146,15 +160,15 @@ auth/
 └── .auth/cookies.json     # Cached cookies (gitignored)
 
 common/
+├── testData/
+│   ├── index.ts                    # 🎯 Barrel file
+│   ├── UserDataFactory.ts          # faker.js factory for generating realistic test data
+│   └── AddressBuilder.ts           # Fluent builder for Address objects
 ├── utils/
-│   ├── cookieHandler.ts     # Cookie modal handling
-│   └── ServiceFactory.ts    # API service factory
+│   ├── cookieHandler.ts            # Cookie modal handling
+│   └── ServiceFactory.ts           # API service factory
 └── constants/
-    ├── index.ts             # 🎯 Barrel file
-    ├── apiEndpoints.ts      # API routes
-    ├── errorMessages.ts     # Shared error text
-    ├── timeouts.ts          # TIMEOUTS constants
-    └── locators.ts          # DEPRECATED - moved to pages/
+    └── index.ts                    # 🎯 Barrel file (API_ENDPOINTS, ERROR_MESSAGES, TIMEOUTS)
 
 services/
 ├── index.ts                 # 🎯 Barrel file (export all services)
@@ -200,17 +214,23 @@ tests/
    - All tests inherit authenticated session automatically
 
 3. **Centralized Selectors**: All UI selectors in `pages/locators.ts` (colocated with pages)
-   - Never hardcode selectors inline in page objects
+   - Define locators as string constants: `ACCOUNT_CREATED_TEXT: 'Account Created!'`
+   - Use `page.getByText(LOCATORS.LOGIN_PAGE.ACCOUNT_CREATED_TEXT)` in page objects
+   - Never hardcode selectors inline in tests or page objects
 
-4. **Service Dual Methods**: Every service method has `.Response()` variant
+4. **Test Data Objects**: Pass entire domain objects (e.g., `UserRegistrationData`) to page methods
+   - Page methods extract needed values internally (e.g., `user.address.zipcode`)
+   - This eliminates verbose mapping objects in tests
+
+5. **Service Dual Methods**: Every service method has `.Response()` variant
    - Use JSON variant for data assertions
    - Use Response variant for HTTP status checks
 
-5. **Circular Dependency Prevention**: Page files use local imports
+6. **Circular Dependency Prevention**: Page files use local imports
    - ✅ Pages: `import { BasePage } from './BasePage'` (local)
    - ✅ External: `import { HomePage } from '../pages'` (barrel)
 
-6. **ESLint Config**: API tests excluded from Playwright linting rules
+7. **ESLint Config**: API tests excluded from Playwright linting rules
    - UI tests: Full Playwright plugin rules enforced
    - API tests: No linting checks (custom apiTest differs from standard test)
 
@@ -219,7 +239,7 @@ tests/
 ## Test Status & Commands
 
 ```bash
-npx playwright test                      # Run all (17 tests)
+npx playwright test                      # Run all tests
 npx playwright test --reporter=line      # Simple output
 npx playwright show-report               # HTML report
 npx playwright test --debug              # Debug mode

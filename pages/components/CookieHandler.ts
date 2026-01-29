@@ -1,5 +1,5 @@
 import { Page, Locator } from '@playwright/test';
-import { LOCATORS, TIMEOUTS, ERROR_MESSAGES } from '../constants';
+import { LOCATORS, TIMEOUTS, ERROR_MESSAGES } from '../../common/constants';
 
 export class CookieHandler {
   readonly cookieConsentDialog: Locator;
@@ -10,22 +10,22 @@ export class CookieHandler {
 
   constructor(page: Page) {
     this.cookieConsentDialog = page.locator(LOCATORS.COOKIE.DIALOG).first();
-    this.consentButton = this.cookieConsentDialog.getByRole('button', { name: 'Consent' });
-    this.manageOptionsButton = this.cookieConsentDialog.getByRole('button', {
-      name: 'Manage options',
+    this.consentButton = this.cookieConsentDialog.getByRole('button', {
+      name: LOCATORS.COOKIE.CONSENT_BUTTON,
     });
-    this.learnMoreButton = this.cookieConsentDialog.getByRole('button', { name: 'Learn more' });
+    this.manageOptionsButton = this.cookieConsentDialog.getByRole('button', {
+      name: LOCATORS.COOKIE.MANAGE_OPTIONS_BUTTON,
+    });
+    this.learnMoreButton = this.cookieConsentDialog.getByRole('button', {
+      name: LOCATORS.COOKIE.LEARN_MORE_BUTTON,
+    });
     this.listOfPartnersButton = this.cookieConsentDialog.getByRole('button', {
-      name: 'List of partners.',
+      name: LOCATORS.COOKIE.PARTNERS_BUTTON,
     });
   }
 
   async isCookieConsentVisible(): Promise<boolean> {
-    try {
-      return await this.cookieConsentDialog.isVisible({ timeout: TIMEOUTS.COOKIE_DIALOG });
-    } catch {
-      return false;
-    }
+    return await this.cookieConsentDialog.isVisible({ timeout: TIMEOUTS.COOKIE_DIALOG });
   }
 
   async acceptCookieConsent(): Promise<void> {

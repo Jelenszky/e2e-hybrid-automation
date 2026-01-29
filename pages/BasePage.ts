@@ -1,5 +1,5 @@
 import { Page, Locator } from '@playwright/test';
-import { CookieHandler } from '../common/utils/cookieHandler';
+import { CookieHandler } from './components';
 import { LOCATORS } from './locators';
 
 export class BasePage {

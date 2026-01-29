@@ -9,6 +9,9 @@ export class HomePage extends BasePage {
   readonly featuredItemsHeading: Locator;
   readonly productList: ProductListComponent;
   readonly orderConfirmationModal: OrderConfirmationModalComponent;
+  readonly newUserSignupText: Locator;
+  readonly loggedInAsText: (username: string) => Locator;
+  readonly deleteAccountLink: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -21,6 +24,11 @@ export class HomePage extends BasePage {
     });
     this.productList = new ProductListComponent(page);
     this.orderConfirmationModal = new OrderConfirmationModalComponent(page);
+    this.newUserSignupText = page.getByText(LOCATORS.HOME_PAGE.NEW_USER_SIGNUP_TEXT);
+    this.loggedInAsText = (username: string) => page.getByText(`Logged in as ${username}`);
+    this.deleteAccountLink = page.getByRole('link', {
+      name: LOCATORS.HOME_PAGE.DELETE_ACCOUNT_LINK,
+    });
   }
 
   async navigate(): Promise<void> {

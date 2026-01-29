@@ -1,6 +1,7 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 import { LOCATORS } from './locators';
+import { UserRegistrationData } from '../common/testData';
 
 export class LoginPage extends BasePage {
   readonly loginSection: Locator;
@@ -31,6 +32,11 @@ export class LoginPage extends BasePage {
   readonly zipcodeInput: Locator;
   readonly mobileNumberInput: Locator;
   readonly createAccountButton: Locator;
+  readonly enterAccountInformationText: Locator;
+  readonly accountCreatedText: Locator;
+  readonly accountDeletedText: Locator;
+  readonly continueButton: Locator;
+  readonly deleteAccountButton: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -62,6 +68,15 @@ export class LoginPage extends BasePage {
     this.zipcodeInput = page.locator(LOCATORS.LOGIN_PAGE.ZIPCODE_INPUT);
     this.mobileNumberInput = page.locator(LOCATORS.LOGIN_PAGE.MOBILE_NUMBER_INPUT);
     this.createAccountButton = page.locator(LOCATORS.LOGIN_PAGE.CREATE_ACCOUNT_BUTTON);
+    this.enterAccountInformationText = page.getByText(
+      LOCATORS.LOGIN_PAGE.ENTER_ACCOUNT_INFORMATION_TEXT
+    );
+    this.accountCreatedText = page.getByText(LOCATORS.LOGIN_PAGE.ACCOUNT_CREATED_TEXT).first();
+    this.accountDeletedText = page.getByText(LOCATORS.LOGIN_PAGE.ACCOUNT_DELETED_TEXT).first();
+    this.continueButton = page.getByRole('link', { name: LOCATORS.LOGIN_PAGE.CONTINUE_BUTTON });
+    this.deleteAccountButton = page.getByRole('link', {
+      name: LOCATORS.LOGIN_PAGE.DELETE_ACCOUNT_BUTTON,
+    });
   }
 
   async login(email: string, password: string): Promise<void> {
@@ -76,46 +91,28 @@ export class LoginPage extends BasePage {
     await this.signupButton.click();
   }
 
-  async fillSignupForm(details: {
-    title: 'Mr.' | 'Mrs.';
-    password: string;
-    day: string;
-    month: string;
-    year: string;
-    newsletter?: boolean;
-    offers?: boolean;
-    firstName: string;
-    lastName: string;
-    company?: string;
-    address1: string;
-    address2?: string;
-    country: string;
-    state: string;
-    city: string;
-    zipcode: string;
-    mobile: string;
-  }): Promise<void> {
-    if (details.title === 'Mr.') {
+  async fillSignupForm(user: UserRegistrationData): Promise<void> {
+    if (user.title === 'Mr.') {
       await this.titleMrRadio.check();
     } else {
       await this.titleMrsRadio.check();
     }
-    await this.passwordInput.fill(details.password);
-    await this.daySelect.selectOption(details.day);
-    await this.monthSelect.selectOption(details.month);
-    await this.yearSelect.selectOption(details.year);
-    if (details.newsletter) await this.newsletterCheckbox.check();
-    if (details.offers) await this.offersCheckbox.check();
-    await this.firstNameInput.fill(details.firstName);
-    await this.lastNameInput.fill(details.lastName);
-    if (details.company) await this.companyInput.fill(details.company);
-    await this.address1Input.fill(details.address1);
-    if (details.address2) await this.address2Input.fill(details.address2);
-    await this.countrySelect.selectOption(details.country);
-    await this.stateInput.fill(details.state);
-    await this.cityInput.fill(details.city);
-    await this.zipcodeInput.fill(details.zipcode);
-    await this.mobileNumberInput.fill(details.mobile);
+    await this.passwordInput.fill(user.password);
+    await this.daySelect.selectOption(user.dateOfBirth.day);
+    await this.monthSelect.selectOption(user.dateOfBirth.month);
+    await this.yearSelect.selectOption(user.dateOfBirth.year);
+    if (user.newsletter) await this.newsletterCheckbox.check();
+    if (user.offers) await this.offersCheckbox.check();
+    await this.firstNameInput.fill(user.firstName);
+    await this.lastNameInput.fill(user.lastName);
+    if (user.address.company) await this.companyInput.fill(user.address.company);
+    await this.address1Input.fill(user.address.address1);
+    if (user.address.address2) await this.address2Input.fill(user.address.address2);
+    await this.countrySelect.selectOption(user.address.country);
+    await this.stateInput.fill(user.address.state);
+    await this.cityInput.fill(user.address.city);
+    await this.zipcodeInput.fill(user.address.zipcode);
+    await this.mobileNumberInput.fill(user.mobile);
     await this.createAccountButton.click();
   }
 }

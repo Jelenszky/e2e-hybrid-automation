@@ -1,10 +1,10 @@
 export const LOCATORS = {
   COOKIE: {
     DIALOG: '.fc-dialog-container',
-    CONSENT_BUTTON: 'button[name="Consent"]',
-    MANAGE_OPTIONS_BUTTON: 'button[name="Manage options"]',
-    LEARN_MORE_BUTTON: 'button[name="Learn more"]',
-    PARTNERS_BUTTON: 'button[name="List of partners."]',
+    CONSENT_BUTTON: 'Consent',
+    MANAGE_OPTIONS_BUTTON: 'Manage options',
+    LEARN_MORE_BUTTON: 'Learn more',
+    PARTNERS_BUTTON: 'List of partners.',
   },
 
   PRODUCT_LIST: {
@@ -38,6 +38,7 @@ export const LOCATORS = {
     SUBSCRIPTION_HEADING: 'Subscription',
     EMAIL_INPUT: '#subscribe_email',
     SUBSCRIBE_BUTTON: '#subscribe',
+    NEW_USER_SIGNUP_TEXT: 'New User Signup!',
   },
 
   LOGIN_PAGE: {
@@ -69,6 +70,11 @@ export const LOCATORS = {
     ZIPCODE_INPUT: '[data-qa="zipcode"]',
     MOBILE_NUMBER_INPUT: '[data-qa="mobile_number"]',
     CREATE_ACCOUNT_BUTTON: '[data-qa="create-account"]',
+    ENTER_ACCOUNT_INFORMATION_TEXT: 'Enter Account Information',
+    ACCOUNT_CREATED_TEXT: 'Account Created!',
+    ACCOUNT_DELETED_TEXT: 'Account Deleted!',
+    CONTINUE_BUTTON: 'Continue',
+    DELETE_ACCOUNT_BUTTON: 'Delete Account',
   },
 
   CART_PAGE: {
