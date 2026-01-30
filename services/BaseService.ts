@@ -5,4 +5,14 @@ export abstract class BaseService {
     protected baseURL: string,
     protected request: APIRequestContext
   ) {}
+
+  protected buildFormData(data: Record<string, string | number | undefined>): string {
+    const formData = new URLSearchParams();
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined) {
+        formData.append(key, String(value));
+      }
+    });
+    return formData.toString();
+  }
 }

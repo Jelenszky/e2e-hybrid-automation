@@ -23,8 +23,8 @@
     "services/**/*.ts",
     "fixtures/**/*.ts",
     "playwright/**/*.ts",
-    "playwright.config.ts",
-    "auth/auth.setup.ts"
+    "cookies/**/*.ts",
+    "playwright.config.ts"
   ],
   "exclude": ["node_modules", "dist", "playwright-report", "test-results"]
 }

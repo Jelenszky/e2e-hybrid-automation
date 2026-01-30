@@ -5,8 +5,7 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
-/playwright/.auth/
-/auth/.auth/
+/cookies/.cookies/
 
 # Allure
 /allure-results/

@@ -1,6 +1,11 @@
 import { test as base } from '@playwright/test';
-import { ServiceFactory } from '../common/utils/serviceFactory';
-import { ProductService, BrandService, AuthService, UserService } from '../services';
+import {
+  ServiceFactory,
+  ProductService,
+  BrandService,
+  AuthService,
+  UserService,
+} from '../services';
 import config from '../playwright.config';
 
 type APIFixtures = {

@@ -13,7 +13,7 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
-  globalSetup: require.resolve('./auth/auth.setup.ts'),
+  globalSetup: require.resolve('./cookies/cookies.setup.ts'),
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -32,10 +32,15 @@ export default defineConfig({
     baseURL: 'http://automationexercise.com',
 
     /* Reuse storage state with accepted cookies */
-    storageState: 'auth/.auth/cookies.json',
+    storageState: 'cookies/.cookies/cookies.json',
 
     /* Collect trace for all failed tests in CI for visual debugging */
     trace: process.env.CI ? 'retain-on-failure' : 'on-first-retry',
+
+    /* Set default Content-Type header for form-encoded API requests */
+    extraHTTPHeaders: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
   },
 
   /* Configure projects for major browsers */

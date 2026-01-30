@@ -131,4 +131,48 @@ export class UserDataFactory {
   static generateUsers(count: number): UserRegistrationData[] {
     return Array.from({ length: count }, () => this.generateUser());
   }
+
+  /**
+   * Generate user and convert to API format in one call
+   * Returns the API-formatted user object with all fields needed for API tests
+   */
+  static generateApiTestUserData(overrides: Partial<UserRegistrationData> = {}) {
+    const user = this.generateUser(overrides);
+    return this.toApiFormat(user);
+  }
+
+  /**
+   * Generate invalid credentials for testing error scenarios
+   */
+  static generateInvalidCredentials() {
+    return {
+      nonexistentEmail: faker.internet.email({ provider: 'invalid-test.com' }),
+      invalidPassword: `invalid${faker.number.int({ min: 100, max: 999 })}!`,
+    };
+  }
+
+  /**
+   * Convert UserRegistrationData to API request format
+   */
+  static toApiFormat(user: UserRegistrationData) {
+    return {
+      name: user.name,
+      email: user.email,
+      password: user.password,
+      title: user.title,
+      birth_date: user.dateOfBirth.day,
+      birth_month: user.dateOfBirth.month,
+      birth_year: user.dateOfBirth.year,
+      firstname: user.firstName,
+      lastname: user.lastName,
+      company: user.address.company,
+      address1: user.address.address1,
+      address2: user.address.address2,
+      country: user.address.country,
+      zipcode: user.address.zipcode,
+      state: user.address.state,
+      city: user.address.city,
+      mobile_number: user.mobile,
+    };
+  }
 }

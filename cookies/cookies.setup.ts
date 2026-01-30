@@ -13,7 +13,7 @@ async function globalSetup() {
     await page.goto('/');
     const homePage = new HomePage(page);
     await homePage.acceptCookiesIfPresent();
-    await context.storageState({ path: 'auth/.auth/cookies.json' });
+    await context.storageState({ path: 'cookies/.cookies/cookies.json' });
     console.log('Storage state saved with cookies accepted');
   } catch (error) {
     console.error('Global setup failed:', error);

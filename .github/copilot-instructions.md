@@ -10,14 +10,15 @@
 - **Pages**: `HomePage`, `LoginPage`, `CartPage`, `ProductsPage`, `ProductDetailsPage`, `CheckoutPage`
 - **Components**: `ProductListComponent`, `OrderConfirmationModalComponent`
 - **Fixtures**: `pageFixtures.ts` auto-initializes page objects
-- **Test Files**: `tests/cookieConsent.spec.ts`, `tests/ui/registration.spec.ts`
+- **Test Files**: `tests/cookieConsent.spec.ts`, `tests/ui/registration.spec.ts`, `tests/hybrid/registration.spec.ts`
 
 ### API Testing Layer (Service Factory Pattern)
 
-- **Services**: `ProductService`, `BrandService`, `AuthService`, `UserService` extending `BaseService`
+- **Services**: `UserService`, `ProductService`, `BrandService`, `AuthService` extending `BaseService`
 - **Factory**: `ServiceFactory` in `common/utils/` creates typed service instances
-- **Fixtures**: `apiFixtures.ts` provides both individual services and factory
-- **Test Files**: `tests/api/example.api.spec.ts`
+- **Fixtures**: `apiFixtures.ts` provides individual services and factory
+- **Test Files**: `tests/api/user-account.spec.ts`
+- **HTTP Transport**: Form-encoded (`application/x-www-form-urlencoded`) configured globally in `playwright.config.ts` via `extraHTTPHeaders`
 
 ### Why This Hybrid Structure
 
@@ -26,6 +27,7 @@
 - **Scalability**: Services extend BaseService for shared functionality
 - **Type Safety**: Full TypeScript across both layers
 - **Global Auth**: `auth/auth.setup.ts` handles cookie state once, reused across all tests
+- **Form-Encoded Requests**: `BaseService.buildFormData()` converts data to URLSearchParams; global header applies to all requests
 
 ---
 
@@ -35,29 +37,29 @@
 
 ```bash
 npx playwright test                                      # Run all tests
-npx playwright test tests/cookieConsent.spec.ts         # Cookie consent tests
+npx playwright test tests/api/user-account.spec.ts      # API user account tests
 npx playwright test tests/ui/registration.spec.ts       # User registration flow (UI)
-npx playwright test tests/api/                          # API tests only
+npx playwright test tests/hybrid/                       # Hybrid tests
 npx playwright test --debug                             # Debug mode
 npx playwright show-report                              # View HTML report
 ```
 
 ### Test Data Generation
 
-Tests use **faker.js** for all data:
+Tests use **faker.js** for all data - **zero hardcoded values**:
 
 - `UserDataFactory.generateUser()` - Complete user with faker-generated name, email, address
+- `UserDataFactory.generateApiTestUserData()` - Returns API-formatted object with all fields needed for API tests
+- `UserDataFactory.generateInvalidCredentials()` - Returns `{ nonexistentEmail, invalidPassword }` for error scenarios
 - `UserDataFactory.generateUserWithCustomAddress()` - User with optional address customization
 - `AddressBuilder` - Fluent builder for Address objects with sensible faker defaults
-
-**Zero hardcoded test data** - all values generated at runtime via factories.
 
 ### Important: Barrel File Imports (Use These!)
 
 - **UI tests**: `import { test, expect } from '../../fixtures';`
 - **API tests**: `import { apiTest, expect } from '../../fixtures';`
 - **Pages**: `import { HomePage, LoginPage, LOCATORS } from '../../pages';`
-- **Services**: `import { ProductService, BrandService } from '../../services';`
+- **Services**: `import { UserService, ProductService } from '../../services';`
 - **Test Data**: `import { UserDataFactory, AddressBuilder } from '../../common/testData';`
 - **Never import from individual files** - always use barrel files (index.ts)
 
@@ -72,83 +74,57 @@ import { test, expect } from '../../fixtures';
 import { UserDataFactory } from '../../common/testData';
 
 test('user registration', async ({ homePage, loginPage }) => {
-  // Generate realistic test data - no hardcoded values
   const testUser = UserDataFactory.generateUser();
-
   await homePage.navigate();
-  await homePage.acceptCookiesIfPresent(); // Auto-inherited from BasePage
-
-  // Use page object methods and locators
+  await homePage.acceptCookiesIfPresent();
   await homePage.navigateToSignupLogin();
   await loginPage.fillSignupForm(testUser);
   await expect(loginPage.accountCreatedText).toBeVisible();
 });
 ```
 
-**Key Points:**
-
-- All pages extend `BasePage` (inherits `acceptCookiesIfPresent()`)
-- Use `LOCATORS` from barrel import (colocated with pages in `pages/locators.ts`)
-- Pages contain components (e.g., `ProductListComponent`) for reusable UI blocks
-- Page methods accept domain objects (e.g., `UserRegistrationData`) not inline objects
-- Page files use local imports to avoid circular deps: `import { BasePage } from './BasePage'`
-
-### 2. API Test Pattern (Service Factory)
+### 2. API Test Pattern (Single-Method Services)
 
 ```typescript
 import { apiTest, expect } from '../../fixtures';
+import { UserDataFactory } from '../../common/testData';
+import { StatusCodes } from 'http-status-codes';
 
-// Option A: Use individual service fixture
-apiTest('get products', async ({ productService }) => {
-  const products = await productService.getAllProducts(); // JSON variant
-  expect(products).toHaveProperty('responseCode', 200);
+apiTest('create user account', async ({ userService }) => {
+  const userData = UserDataFactory.generateApiTestUserData();
+  const response = await userService.createUserAccount(userData);
+
+  expect(response.responseCode).toBe(StatusCodes.CREATED);
+  expect(response.message).toContain('success');
+
+  await userService.deleteUserAccount(userData.email, userData.password);
 });
 
-// Option B: Get raw Response for detailed validation
-apiTest('status check', async ({ productService }) => {
-  const response = await productService.getAllProductsResponse(); // Raw response
-  expect(response.status()).toBe(200);
-});
+apiTest('fail with invalid credentials', async ({ userService }) => {
+  const { nonexistentEmail, invalidPassword } = UserDataFactory.generateInvalidCredentials();
+  const response = await userService.deleteUserAccount(nonexistentEmail, invalidPassword);
 
-// Option C: Use factory for multiple services
-apiTest('multi-service', async ({ serviceFactory }) => {
-  const products = serviceFactory.createProductService();
-  const brands = serviceFactory.createBrandService();
-  const prodResp = await products.getAllProducts();
-  expect(prodResp).toHaveProperty('responseCode', 200);
+  expect(response.responseCode).toBe(StatusCodes.NOT_FOUND);
 });
 ```
 
-**Services Dual-Method Pattern:**
+**Key Pattern**: Services return parsed JSON response body directly (not raw Response objects). Factory method returns single API-formatted object with all needed fields.
 
-- Each service method has two variants:
-  - `methodName()` - returns parsed JSON response object
-  - `methodNameResponse()` - returns raw Playwright `Response` object
-- Examples: `getAllProducts()` / `getAllProductsResponse()`
+### 3. Form-Encoded API Requests
 
-### 3. Creating New Services
-
-Extend `BaseService`:
+BaseService provides `buildFormData()` helper for converting request objects to URLSearchParams:
 
 ```typescript
-export class YourService extends BaseService {
-  async yourMethod() {
-    const url = this.getFullURL('/api/endpoint');
-    return this.requestContext.post(url, { data: {...} });
-  }
-
-  async yourMethodResponse() {
-    const url = this.getFullURL('/api/endpoint');
-    return this.requestContext.post(url, { data: {...} });
-  }
+// In UserService
+async createUserAccount(userData: CreateUserData): Promise<any> {
+  const response = await this.request.post(`${this.baseURL}/api/endpoint`, {
+    data: this.buildFormData(userData),  // Converts to x-www-form-urlencoded
+  });
+  return response.json();
 }
 ```
 
-Then:
-
-1. Export from `services/index.ts`
-2. Add to `ServiceFactory.ts`
-3. Add fixture to `apiFixtures.ts`
+Global `extraHTTPHeaders` in `playwright.config.ts` ensures all requests include `Content-Type: application/x-www-form-urlencoded`.
 
 ---
 
@@ -156,32 +132,32 @@ Then:
 
 ```
 auth/
-├── auth.setup.ts          # Global setup (handles cookies, saves to playwright/.auth/)
+├── auth.setup.ts          # Global setup (handles cookies)
 └── .auth/cookies.json     # Cached cookies (gitignored)
 
 common/
 ├── testData/
 │   ├── index.ts                    # 🎯 Barrel file
-│   ├── UserDataFactory.ts          # faker.js factory for generating realistic test data
-│   └── AddressBuilder.ts           # Fluent builder for Address objects
+│   ├── UserDataFactory.ts          # generateUser(), generateApiTestUserData(), generateInvalidCredentials()
+│   └── AddressBuilder.ts           # Fluent builder for Address
 ├── utils/
 │   ├── cookieHandler.ts            # Cookie modal handling
 │   └── ServiceFactory.ts           # API service factory
 └── constants/
-    └── index.ts                    # 🎯 Barrel file (API_ENDPOINTS, ERROR_MESSAGES, TIMEOUTS)
+    └── index.ts                    # 🎯 API_ENDPOINTS, API_MESSAGES
 
 services/
 ├── index.ts                 # 🎯 Barrel file (export all services)
-├── BaseService.ts          # Base class (baseURL, requestContext)
+├── BaseService.ts          # buildFormData() helper + request context
+├── UserService.ts          # createUserAccount(), deleteUserAccount(), updateUserAccount(), getUserAccountByEmail()
 ├── ProductService.ts
 ├── BrandService.ts
-├── AuthService.ts
-└── UserService.ts
+└── AuthService.ts
 
 pages/
-├── index.ts                 # 🎯 Barrel file (export all pages + LOCATORS)
-├── locators.ts             # LOCATORS constant (moved here from common/)
-├── BasePage.ts             # Inherits CookieHandler
+├── index.ts                 # 🎯 Barrel file
+├── locators.ts             # All UI selectors as constants
+├── BasePage.ts             # acceptCookiesIfPresent() and common methods
 ├── HomePage.ts, LoginPage.ts, etc.
 └── components/
     ├── index.ts            # 🎯 Barrel file
@@ -195,44 +171,48 @@ fixtures/
 
 tests/
 ├── api/
-│   └── example.api.spec.ts  # API tests (use apiTest from barrel)
+│   └── user-account.spec.ts    # 8 tests: create, delete, update, get + error cases
 ├── ui/
-│   └── registration.spec.ts # UI tests (use test from barrel)
-└── cookieConsent.spec.ts    # UI tests (use test from barrel)
+│   └── registration.spec.ts    # UI tests
+├── hybrid/
+│   └── registration.spec.ts    # Combined UI+API tests
+└── cookieConsent.spec.ts       # UI tests
 ```
 
 ---
 
 ## Critical Rules
 
-1. **Barrel Files**: Always import from `index.ts` files, never directly from source files
+1. **Barrel Files**: Always import from index.ts, never individual files
    - ❌ `import { HomePage } from '../../pages/HomePage'`
    - ✅ `import { HomePage } from '../../pages'`
 
-2. **Storage State**: Tests reuse `playwright/.auth/cookies.json` (set in playwright.config.ts)
-   - Global setup runs once, saves cookie state
-   - All tests inherit authenticated session automatically
+2. **Test Data**: Use `UserDataFactory` - no hardcoded values
+   - ✅ `const { user, apiData } = UserDataFactory.generateApiTestUserData();`
+   - ✅ `const { nonexistentEmail } = UserDataFactory.generateInvalidCredentials();`
 
-3. **Centralized Selectors**: All UI selectors in `pages/locators.ts` (colocated with pages)
-   - Define locators as string constants: `ACCOUNT_CREATED_TEXT: 'Account Created!'`
-   - Use `page.getByText(LOCATORS.LOGIN_PAGE.ACCOUNT_CREATED_TEXT)` in page objects
-   - Never hardcode selectors inline in tests or page objects
+3. **API Services**: Return parsed response bodies, not raw Response objects
+   - Service methods call `.json()` internally and return the parsed body
+   - Tests access response properties directly: `response.responseCode`, `response.message`
 
-4. **Test Data Objects**: Pass entire domain objects (e.g., `UserRegistrationData`) to page methods
-   - Page methods extract needed values internally (e.g., `user.address.zipcode`)
-   - This eliminates verbose mapping objects in tests
+4. **Form-Encoded Requests**: Always use `buildFormData()` for POST/PUT/DELETE
+   - Global `extraHTTPHeaders` provides `Content-Type` header automatically
+   - Helper skips `undefined` values
 
-5. **Service Dual Methods**: Every service method has `.Response()` variant
-   - Use JSON variant for data assertions
-   - Use Response variant for HTTP status checks
-
-6. **Circular Dependency Prevention**: Page files use local imports
+5. **Circular Dependency Prevention**: Page files use local imports
    - ✅ Pages: `import { BasePage } from './BasePage'` (local)
    - ✅ External: `import { HomePage } from '../pages'` (barrel)
 
-7. **ESLint Config**: API tests excluded from Playwright linting rules
-   - UI tests: Full Playwright plugin rules enforced
-   - API tests: No linting checks (custom apiTest differs from standard test)
+6. **Selectors**: All UI selectors in `pages/locators.ts` as constants
+   - Never hardcode selectors in page objects or tests
+   - Reference via: `LOCATORS.PAGE_NAME.SELECTOR_NAME`
+
+7. **API Endpoints**: Defined in `common/constants/index.ts`
+   - Services use `API_ENDPOINTS` constant from barrel import
+
+8. **API Response Messages**: Centralized in `common/constants/apiMessages.ts`
+   - Imported as `API_MESSAGES` in tests
+   - Example: `API_MESSAGES.USER.CREATE`, `API_MESSAGES.USER.NOT_FOUND`
 
 ---
 

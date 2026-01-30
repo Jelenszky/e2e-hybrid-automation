@@ -1,5 +1,5 @@
 import { APIRequestContext } from '@playwright/test';
-import { ProductService, BrandService, AuthService, UserService } from '../../services';
+import { ProductService, BrandService, AuthService, UserService } from '../index';
 
 export class ServiceFactory {
   constructor(

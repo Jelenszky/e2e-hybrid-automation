@@ -17,7 +17,7 @@ export class AddressBuilder {
     this.address = {
       company: defaults.company,
       address1: defaults.address1 || faker.location.streetAddress(),
-      address2: defaults.address2,
+      address2: defaults.address2 || faker.location.secondaryAddress(),
       country: defaults.country || 'United States',
       state: defaults.state || faker.location.state({ abbreviated: false }),
       city: defaults.city || faker.location.city(),
