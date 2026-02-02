@@ -33,6 +33,12 @@ export class HomePage extends BasePage {
 
   async navigate(): Promise<void> {
     await this.page.goto('/');
+    await this.waitForPageToLoad();
+  }
+
+  async waitForPageToLoad(): Promise<void> {
+    await this.featuredItemsHeading.waitFor({ state: 'visible' });
+    await this.productList.productCards.first().waitFor({ state: 'visible' });
   }
 
   async navigateToProducts(): Promise<void> {

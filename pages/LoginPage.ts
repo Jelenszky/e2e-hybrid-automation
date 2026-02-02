@@ -37,6 +37,7 @@ export class LoginPage extends BasePage {
   readonly accountDeletedText: Locator;
   readonly continueButton: Locator;
   readonly deleteAccountButton: Locator;
+  readonly loginErrorMessage: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -77,6 +78,7 @@ export class LoginPage extends BasePage {
     this.deleteAccountButton = page.getByRole('link', {
       name: LOCATORS.LOGIN_PAGE.DELETE_ACCOUNT_BUTTON,
     });
+    this.loginErrorMessage = page.getByText(LOCATORS.LOGIN_PAGE.LOGIN_ERROR_MESSAGE);
   }
 
   async login(email: string, password: string): Promise<void> {
@@ -92,7 +94,7 @@ export class LoginPage extends BasePage {
   }
 
   async fillSignupForm(user: UserRegistrationData): Promise<void> {
-    if (user.title === 'Mr.') {
+    if (user.title === 'Mr') {
       await this.titleMrRadio.check();
     } else {
       await this.titleMrsRadio.check();
@@ -114,5 +116,9 @@ export class LoginPage extends BasePage {
     await this.zipcodeInput.fill(user.address.zipcode);
     await this.mobileNumberInput.fill(user.mobile);
     await this.createAccountButton.click();
+  }
+
+  async isLoginErrorVisible(): Promise<boolean> {
+    return await this.loginErrorMessage.isVisible();
   }
 }

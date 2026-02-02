@@ -6,7 +6,7 @@ export abstract class BaseService {
     protected request: APIRequestContext
   ) {}
 
-  protected buildFormData(data: Record<string, string | number | undefined>): string {
+  protected buildFormData(data: Record<string, any>): string {
     const formData = new URLSearchParams();
     Object.entries(data).forEach(([key, value]) => {
       if (value !== undefined) {

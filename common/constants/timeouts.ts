@@ -1,4 +1,4 @@
 export const TIMEOUTS = {
-  COOKIE_DIALOG: 5000,
-  COOKIE_DIALOG_CLOSE: 3000,
+  SHORT: 3000,
+  MEDIUM: 5000,
 } as const;

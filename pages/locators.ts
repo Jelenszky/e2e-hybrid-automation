@@ -16,6 +16,7 @@ export const LOCATORS = {
   },
 
   ORDER_CONFIRMATION_MODAL: {
+    MODAL: '#cartModal',
     CONTINUE_SHOPPING_BUTTON: 'Continue Shopping',
     VIEW_CART_BUTTON: 'View Cart',
   },
@@ -75,6 +76,7 @@ export const LOCATORS = {
     ACCOUNT_DELETED_TEXT: 'Account Deleted!',
     CONTINUE_BUTTON: 'Continue',
     DELETE_ACCOUNT_BUTTON: 'Delete Account',
+    LOGIN_ERROR_MESSAGE: 'Your email or password is incorrect',
   },
 
   CART_PAGE: {

@@ -18,7 +18,7 @@ export interface UserRegistrationData extends User {
   name: string;
   email: string;
   password: string;
-  title: 'Mr.' | 'Mrs.';
+  title: 'Mr' | 'Mrs';
   dateOfBirth: {
     day: string;
     month: string;
@@ -56,7 +56,7 @@ export class UserDataFactory {
       lastName,
       email: overrides.email || faker.internet.email({ provider: 'example.com' }),
       password: overrides.password || this.generatePassword(),
-      title: overrides.title || 'Mr.',
+      title: overrides.title || 'Mr',
       dateOfBirth: overrides.dateOfBirth || this.generateDateOfBirth(),
       mobile: faker.phone.number({ style: 'international' }).replace(/\D/g, '').slice(-10),
       address: address.build(),

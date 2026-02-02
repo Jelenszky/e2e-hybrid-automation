@@ -25,7 +25,7 @@ export class CookieHandler {
   }
 
   async isCookieConsentVisible(): Promise<boolean> {
-    return await this.cookieConsentDialog.isVisible({ timeout: TIMEOUTS.COOKIE_DIALOG });
+    return await this.cookieConsentDialog.isVisible({ timeout: TIMEOUTS.MEDIUM });
   }
 
   async acceptCookieConsent(): Promise<void> {
@@ -33,7 +33,7 @@ export class CookieHandler {
       if (await this.isCookieConsentVisible()) {
         await this.consentButton.click();
         await this.cookieConsentDialog
-          .waitFor({ state: 'hidden', timeout: TIMEOUTS.COOKIE_DIALOG_CLOSE })
+          .waitFor({ state: 'hidden', timeout: TIMEOUTS.SHORT })
           .catch(() => {});
       }
     } catch (error) {

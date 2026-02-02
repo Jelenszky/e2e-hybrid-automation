@@ -27,14 +27,32 @@ export class ProductListComponent {
   }
 
   async getProductName(index: number): Promise<string> {
-    return (await this.productNames.nth(index).textContent())?.trim() ?? '';
+    const productCard = this.productCards.nth(index);
+    const productName = productCard.locator(LOCATORS.PRODUCT_LIST.PRODUCT_NAMES).first();
+    return (await productName.textContent())?.trim() ?? '';
   }
 
   async getProductPrice(index: number): Promise<string> {
-    return (await this.productPrices.nth(index).textContent())?.trim() ?? '';
+    const productCard = this.productCards.nth(index);
+    const productPrice = productCard.locator(LOCATORS.PRODUCT_LIST.PRODUCT_PRICES).first();
+    return (await productPrice.textContent())?.trim() ?? '';
   }
 
   async getProductCount(): Promise<number> {
     return await this.productCards.count();
+  }
+
+  async getAllProductNames(): Promise<string[]> {
+    const productNames: string[] = [];
+    const count = await this.getProductCount();
+
+    for (let i = 0; i < count; i++) {
+      const productName = await this.getProductName(i);
+      if (productName) {
+        productNames.push(productName.toLowerCase().trim());
+      }
+    }
+
+    return productNames;
   }
 }
