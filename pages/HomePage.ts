@@ -25,7 +25,8 @@ export class HomePage extends BasePage {
     this.productList = new ProductListComponent(page);
     this.orderConfirmationModal = new OrderConfirmationModalComponent(page);
     this.newUserSignupText = page.getByText(LOCATORS.HOME_PAGE.NEW_USER_SIGNUP_TEXT);
-    this.loggedInAsText = (username: string) => page.getByText(`Logged in as ${username}`);
+    this.loggedInAsText = (username: string) =>
+      page.getByText(`${LOCATORS.HOME_PAGE.LOGGED_IN_AS_TEXT} ${username}`);
     this.deleteAccountLink = page.getByRole('link', {
       name: LOCATORS.HOME_PAGE.DELETE_ACCOUNT_LINK,
     });
@@ -33,10 +34,10 @@ export class HomePage extends BasePage {
 
   async navigate(): Promise<void> {
     await this.page.goto('/');
-    await this.waitForPageToLoad();
+    await this.shouldBeLoaded();
   }
 
-  async waitForPageToLoad(): Promise<void> {
+  async shouldBeLoaded(): Promise<void> {
     await this.featuredItemsHeading.waitFor({ state: 'visible' });
     await this.productList.productCards.first().waitFor({ state: 'visible' });
   }
@@ -59,5 +60,9 @@ export class HomePage extends BasePage {
 
   async navigateToContactUs(): Promise<void> {
     await this.contactUsLink.click();
+  }
+
+  async isUserLoggedIn(username: string): Promise<boolean> {
+    return await this.loggedInAsText(username).isVisible();
   }
 }

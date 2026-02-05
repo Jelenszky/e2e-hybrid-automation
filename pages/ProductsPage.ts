@@ -43,7 +43,8 @@ export class ProductsPage extends BasePage {
     return await this.productList.getProductPrice(index);
   }
 
-  async waitForPageToLoad(): Promise<void> {
+  async shouldBeLoaded(): Promise<void> {
+    await this.searchInput.waitFor({ state: 'visible' });
     await this.productList.productCards.first().waitFor({ state: 'visible' });
   }
 

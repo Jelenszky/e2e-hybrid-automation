@@ -37,6 +37,9 @@ export default defineConfig({
     /* Collect trace for all failed tests in CI for visual debugging */
     trace: process.env.CI ? 'retain-on-failure' : 'on-first-retry',
 
+    /* Capture screenshots on test failures */
+    screenshot: 'only-on-failure',
+
     /* Set default Content-Type header for form-encoded API requests */
     extraHTTPHeaders: {
       'Content-Type': 'application/x-www-form-urlencoded',

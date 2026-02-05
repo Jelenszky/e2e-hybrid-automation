@@ -52,7 +52,7 @@ export class CartPage extends BasePage {
     return (await this.cartProductTotals.nth(index).textContent())?.trim() ?? '';
   }
 
-  async waitForPageToLoad(): Promise<void> {
+  async shouldBeLoaded(): Promise<void> {
     await Promise.race([
       this.cartItems.first().waitFor({ state: 'visible' }),
       this.emptyCart.waitFor({ state: 'visible' }),

@@ -8,22 +8,13 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   {
     ...playwright.configs['flat/recommended'],
-    files: ['tests/**/*.spec.ts', '!tests/api/**/*.ts'],
+    files: ['tests/**/*.spec.ts'],
     rules: {
       ...playwright.configs['flat/recommended'].rules,
       'playwright/no-conditional-in-test': 'warn',
     },
   },
   eslintConfigPrettier,
-  {
-    files: ['tests/api/**/*.ts'],
-    rules: {
-      '@typescript-eslint/no-unused-vars': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      'playwright/expect-expect': 'off',
-      'playwright/no-standalone-expect': 'off',
-    },
-  },
   {
     languageOptions: {
       parserOptions: {

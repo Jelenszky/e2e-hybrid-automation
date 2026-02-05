@@ -7,6 +7,9 @@ node_modules/
 /playwright/.cache/
 /cookies/.cookies/
 
+# Copilot Instructions (local only)
+.github/copilot-instructions.md
+
 # Allure
 /allure-results/
 /allure-report/

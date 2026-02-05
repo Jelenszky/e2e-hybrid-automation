@@ -40,6 +40,7 @@ export const LOCATORS = {
     EMAIL_INPUT: '#subscribe_email',
     SUBSCRIBE_BUTTON: '#subscribe',
     NEW_USER_SIGNUP_TEXT: 'New User Signup!',
+    LOGGED_IN_AS_TEXT: 'Logged in as',
   },
 
   LOGIN_PAGE: {
@@ -77,6 +78,7 @@ export const LOCATORS = {
     CONTINUE_BUTTON: 'Continue',
     DELETE_ACCOUNT_BUTTON: 'Delete Account',
     LOGIN_ERROR_MESSAGE: 'Your email or password is incorrect',
+    SIGNUP_ERROR_MESSAGE: 'Email Address already exist!',
   },
 
   CART_PAGE: {
@@ -97,6 +99,16 @@ export const LOCATORS = {
     PRODUCT_CARDS: '.features_items .single-products',
     CATEGORY_SIDEBAR: '.category-products',
     BRAND_SIDEBAR: '.brands_products',
+  },
+
+  ACCOUNT_CREATED_PAGE: {
+    HEADING: '[data-qa="account-created"]',
+    CONTINUE_BUTTON: '[data-qa="continue-button"]',
+  },
+
+  ACCOUNT_DELETED_PAGE: {
+    HEADING: '[data-qa="account-deleted"]',
+    CONTINUE_BUTTON: '[data-qa="continue-button"]',
   },
 
   PRODUCT_DETAILS_PAGE: {

@@ -5,4 +5,6 @@ export { CartPage } from './CartPage';
 export { ProductsPage } from './ProductsPage';
 export { ProductDetailsPage } from './ProductDetailsPage';
 export { CheckoutPage } from './CheckoutPage';
+export { AccountCreatedPage } from './AccountCreatedPage';
+export { DeleteAccountPage } from './DeleteAccountPage';
 export { LOCATORS } from './locators';

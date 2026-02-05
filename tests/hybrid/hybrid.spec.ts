@@ -1,9 +1,14 @@
-import { hybridTest as test, expect } from '../../fixtures';
+import { test, expect } from '../../fixtures';
 import { UserDataFactory } from '../../common/testData';
 import { StatusCodes } from 'http-status-codes';
 
 test.describe('Hybrid: UI + API Integration', () => {
-  test('Register user via UI and verify via API', async ({ homePage, loginPage, userService }) => {
+  test('Register user via UI and verify via API', async ({
+    homePage,
+    loginPage,
+    accountCreatedPage,
+    userService,
+  }) => {
     const userData = UserDataFactory.generateUser();
 
     await test.step('Complete signup flow via UI', async () => {
@@ -12,6 +17,7 @@ test.describe('Hybrid: UI + API Integration', () => {
       await loginPage.startSignup(userData.name, userData.email);
       await expect(loginPage.titleMrRadio).toBeVisible();
       await loginPage.fillSignupForm(userData);
+      await accountCreatedPage.shouldBeLoaded();
     });
 
     await test.step('Verify created user via API', async () => {
@@ -56,6 +62,7 @@ test.describe('Hybrid: UI + API Integration', () => {
     });
 
     await test.step('Verify login successful', async () => {
+      expect(await homePage.isUserLoggedIn(userData.name)).toBe(true);
       await expect(homePage.logoutLink).toBeVisible();
     });
 
@@ -83,7 +90,7 @@ test.describe('Hybrid: UI + API Integration', () => {
     await test.step('Get all products via UI', async () => {
       await homePage.navigate();
       await homePage.navigateToProducts();
-      await productsPage.waitForPageToLoad();
+      await productsPage.shouldBeLoaded();
 
       const uiProducts = await productsPage.productList.getAllProductNames();
       uiProductNames.push(...uiProducts);
@@ -117,7 +124,7 @@ test.describe('Hybrid: UI + API Integration', () => {
     await test.step('Search products via UI', async () => {
       await homePage.navigate();
       await homePage.navigateToProducts();
-      await productsPage.waitForPageToLoad();
+      await productsPage.shouldBeLoaded();
 
       await productsPage.searchProduct(searchTerm);
       uiSearchCount = await productsPage.productList.getProductCount();
@@ -158,14 +165,14 @@ test.describe('Hybrid: UI + API Integration', () => {
 
     await test.step('Add product to cart via UI', async () => {
       await homePage.navigateToProducts();
-      await productsPage.waitForPageToLoad();
+      await productsPage.shouldBeLoaded();
 
       await productsPage.addProductToCart(0);
     });
 
     await test.step('Verify product in cart', async () => {
       await homePage.navigateToCart();
-      await cartPage.waitForPageToLoad();
+      await cartPage.shouldBeLoaded();
 
       const count = await cartPage.cartItems.count();
       expect(count).toBeGreaterThan(0);
@@ -207,7 +214,7 @@ test.describe('Hybrid: UI + API Integration', () => {
 
     await test.step('Find and add searched product to cart', async () => {
       await homePage.navigateToProducts();
-      await productsPage.waitForPageToLoad();
+      await productsPage.shouldBeLoaded();
       await productsPage.searchProduct(searchTerm);
 
       await productsPage.findAndAddProductToCart(targetProductName);
@@ -215,7 +222,7 @@ test.describe('Hybrid: UI + API Integration', () => {
 
     await test.step('Verify correct product added to cart', async () => {
       await homePage.navigateToCart();
-      await cartPage.waitForPageToLoad();
+      await cartPage.shouldBeLoaded();
 
       const cartProductName = await cartPage.getProductName(0);
       expect(cartProductName).toContain(targetProductName);

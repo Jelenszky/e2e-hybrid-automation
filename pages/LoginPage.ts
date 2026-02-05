@@ -38,6 +38,7 @@ export class LoginPage extends BasePage {
   readonly continueButton: Locator;
   readonly deleteAccountButton: Locator;
   readonly loginErrorMessage: Locator;
+  readonly signupErrorMessage: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -79,12 +80,17 @@ export class LoginPage extends BasePage {
       name: LOCATORS.LOGIN_PAGE.DELETE_ACCOUNT_BUTTON,
     });
     this.loginErrorMessage = page.getByText(LOCATORS.LOGIN_PAGE.LOGIN_ERROR_MESSAGE);
+    this.signupErrorMessage = page.getByText(LOCATORS.LOGIN_PAGE.SIGNUP_ERROR_MESSAGE);
   }
 
   async login(email: string, password: string): Promise<void> {
     await this.loginEmailInput.fill(email);
     await this.loginPasswordInput.fill(password);
     await this.loginButton.click();
+  }
+
+  async shouldBeLoaded(): Promise<void> {
+    await this.signupSection.waitFor({ state: 'visible' });
   }
 
   async startSignup(name: string, email: string): Promise<void> {
