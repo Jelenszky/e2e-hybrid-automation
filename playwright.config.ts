@@ -13,7 +13,6 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
-  globalSetup: require.resolve('./cookies/cookies.setup.ts'),
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -31,9 +30,6 @@ export default defineConfig({
     /* Base URL to use in actions like `await page.goto('')`. */
     baseURL: 'http://automationexercise.com',
 
-    /* Reuse storage state with accepted cookies */
-    storageState: 'cookies/.cookies/cookies.json',
-
     /* Collect trace for all failed tests in CI for visual debugging */
     trace: process.env.CI ? 'retain-on-failure' : 'on-first-retry',
 
@@ -49,8 +45,22 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     {
+      name: 'setup',
+      testMatch: 'cookies/cookies.setup.ts',
+      use: { ...devices['Desktop Chrome'] },
+    },
+
+    {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      testMatch: ['**/api/**'],
+    },
+
+    {
+      name: 'chromium-ui',
+      use: { ...devices['Desktop Chrome'], storageState: 'cookies/.cookies/cookies.json' },
+      testMatch: ['**/ui/**', '**/hybrid/**'],
+      dependencies: ['setup'],
     },
 
     // {

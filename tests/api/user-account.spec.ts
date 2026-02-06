@@ -3,6 +3,7 @@ import { UserDataFactory } from '../../common/testData';
 import { StatusCodes } from 'http-status-codes';
 import { API_MESSAGES } from '../../common/constants';
 import { UserResponseSchema } from '../../common/schemas';
+import { validateApiUserDataMatches } from '../../common/validators';
 
 test.describe('User Account API', () => {
   test.describe('POST Create/Register User Account', () => {
@@ -145,21 +146,7 @@ test.describe('User Account API', () => {
       const response = await userService.getUserAccountByEmail(userData.email);
 
       expect(response.responseCode).toBe(StatusCodes.OK);
-      expect(response.user.email).toBe(userData.email);
-      expect(response.user.name).toBe(userData.name);
-      expect(response.user.title).toBe(userData.title);
-      expect(response.user.first_name).toBe(userData.firstname);
-      expect(response.user.last_name).toBe(userData.lastname);
-      expect(response.user.company).toBe(userData.company);
-      expect(response.user.address1).toBe(userData.address1);
-      expect(response.user.address2).toBe(userData.address2);
-      expect(response.user.country).toBe(userData.country);
-      expect(response.user.state).toBe(userData.state);
-      expect(response.user.city).toBe(userData.city);
-      expect(response.user.zipcode).toBe(userData.zipcode);
-      expect(response.user.birth_day).toBe(userData.birth_date);
-      expect(response.user.birth_month).toBe(userData.birth_month);
-      expect(response.user.birth_year).toBe(userData.birth_year);
+      validateApiUserDataMatches(response.user, userData);
 
       await userService.deleteUserAccount(userData.email, userData.password);
     });

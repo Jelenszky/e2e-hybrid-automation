@@ -27,7 +27,7 @@ export class BasePage {
     this.logo = page.getByRole('link', { name: LOCATORS.HOME_PAGE.LOGO });
     this.homeLink = page.getByRole('link', { name: LOCATORS.HOME_PAGE.HOME_LINK });
     this.productsLink = page.getByRole('link', { name: LOCATORS.HOME_PAGE.PRODUCTS_LINK });
-    this.cartLink = page.getByRole('link', { name: LOCATORS.HOME_PAGE.CART_LINK });
+    this.cartLink = page.locator(LOCATORS.HOME_PAGE.CART_LINK).first();
     this.signupLoginLink = page.getByRole('link', { name: LOCATORS.HOME_PAGE.SIGNUP_LOGIN_LINK });
     this.testCasesLink = page.getByRole('link', { name: LOCATORS.HOME_PAGE.TEST_CASES_LINK });
     this.apiTestingLink = page.getByRole('link', { name: LOCATORS.HOME_PAGE.API_TESTING_LINK });

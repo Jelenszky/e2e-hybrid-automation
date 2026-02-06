@@ -25,7 +25,7 @@ export const LOCATORS = {
     LOGO: 'Website for automation practice',
     HOME_LINK: ' Home',
     PRODUCTS_LINK: ' Products',
-    CART_LINK: ' Cart',
+    CART_LINK: 'a[href="/view_cart"]',
     SIGNUP_LOGIN_LINK: ' Signup / Login',
     TEST_CASES_LINK: ' Test Cases',
     API_TESTING_LINK: ' API Testing',

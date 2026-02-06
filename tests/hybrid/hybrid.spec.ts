@@ -1,5 +1,6 @@
 import { test, expect } from '../../fixtures';
 import { UserDataFactory } from '../../common/testData';
+import { validateUserDataMatches } from '../../common/validators';
 import { StatusCodes } from 'http-status-codes';
 
 test.describe('Hybrid: UI + API Integration', () => {
@@ -25,23 +26,7 @@ test.describe('Hybrid: UI + API Integration', () => {
 
       expect(response.responseCode).toBe(StatusCodes.OK);
       expect(response.user).toBeDefined();
-      expect(response.user.email).toBe(userData.email);
-      expect(response.user.name).toBe(userData.name);
-      expect(response.user.first_name).toBe(userData.firstName);
-      expect(response.user.last_name).toBe(userData.lastName);
-      expect(response.user.title).toBe(userData.title);
-      expect(response.user.birth_day).toBe(userData.dateOfBirth.day);
-      expect(response.user.birth_month).toBe(userData.dateOfBirth.month);
-      expect(response.user.birth_year).toBe(userData.dateOfBirth.year);
-      expect(response.user.address1).toBe(userData.address.address1);
-      expect(response.user.address2).toBe(userData.address.address2);
-      expect(response.user.country).toBe(userData.address.country);
-      expect(response.user.state).toBe(userData.address.state);
-      expect(response.user.city).toBe(userData.address.city);
-      expect(response.user.zipcode).toBe(userData.address.zipcode);
-      if (userData.address.company) {
-        expect(response.user.company).toBe(userData.address.company);
-      }
+      validateUserDataMatches(response.user, userData);
     });
 
     await userService.deleteUserAccount(userData.email, userData.password);
