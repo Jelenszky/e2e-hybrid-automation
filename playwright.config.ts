@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import path from 'path';
 
 /**
  * Read environment variables from file.
@@ -58,7 +59,10 @@ export default defineConfig({
 
     {
       name: 'chromium-ui',
-      use: { ...devices['Desktop Chrome'], storageState: 'cookies/.cookies/cookies.json' },
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: path.resolve(__dirname, 'cookies/.cookies/cookies.json'),
+      },
       testMatch: ['**/ui/**', '**/hybrid/**'],
       dependencies: ['setup'],
     },
