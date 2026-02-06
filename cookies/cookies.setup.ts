@@ -1,28 +1,17 @@
-import { chromium } from '@playwright/test';
 import { HomePage } from '../pages';
-import config from '../playwright.config';
+import { test as setup } from '@playwright/test';
 import path from 'path';
 
-async function globalSetup() {
-  const baseURL = config.use?.baseURL;
-  const storageStatePath = path.resolve(__dirname, '../cookies/.cookies/cookies.json');
-  const context = await chromium.launchPersistentContext('', {
-    baseURL,
-  });
-  const page = await context.newPage();
-
+setup('Handle cookies and save storage state', async ({ page }) => {
+  const storageStatePath = path.resolve(__dirname, '.cookies/cookies.json');
   try {
-    await page.goto('/');
     const homePage = new HomePage(page);
+    await homePage.navigate();
     await homePage.acceptCookiesIfPresent();
-    await context.storageState({ path: storageStatePath });
+    await homePage.page.context().storageState({ path: storageStatePath });
     console.log('Storage state saved with cookies accepted');
   } catch (error) {
-    console.error('Global setup failed:', error);
+    console.error('Handling cookies and setup failed:', error);
     process.exit(1);
-  } finally {
-    await context.close();
   }
-}
-
-export default globalSetup;
+});
