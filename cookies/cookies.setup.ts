@@ -3,7 +3,9 @@ import { test as setup } from '@playwright/test';
 import path from 'path';
 
 setup('Handle cookies and save storage state', async ({ page }) => {
-  const storageStatePath = path.resolve(__dirname, '.cookies/cookies.json');
+  const projectRoot = path.resolve(__dirname, '..');
+  const storageStatePath = path.resolve(projectRoot, 'cookies/.cookies/cookies.json');
+
   try {
     const homePage = new HomePage(page);
     await homePage.navigate();
