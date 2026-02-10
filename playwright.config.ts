@@ -34,11 +34,6 @@ export default defineConfig({
 
     /* Capture screenshots on test failures */
     screenshot: 'only-on-failure',
-
-    /* Set default Content-Type header for form-encoded API requests */
-    extraHTTPHeaders: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
   },
 
   /* Configure projects for major browsers */
@@ -50,17 +45,32 @@ export default defineConfig({
     },
 
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: 'api',
+      use: {
+        extraHTTPHeaders: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      },
       testDir: 'tests/api',
-      // testMatch: ['**/tests/api/**'],
+    },
+
+    {
+      name: 'chromium-hybrid',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'cookies/.cookies/cookies.json',
+        extraHTTPHeaders: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      },
+      testDir: 'tests/hybrid',
+      dependencies: ['setup'],
     },
 
     {
       name: 'chromium-ui',
       use: { ...devices['Desktop Chrome'], storageState: 'cookies/.cookies/cookies.json' },
-      testDir: 'tests',
-      testMatch: ['**/ui/**', '**/hybrid/**'],
+      testDir: 'tests/ui',
       dependencies: ['setup'],
     },
 

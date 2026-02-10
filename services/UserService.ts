@@ -2,7 +2,7 @@ import { BaseService } from './BaseService';
 import { API_ENDPOINTS } from '../common/constants';
 import { UserResponse } from './types';
 
-export interface CreateUserData {
+export interface CreateUserData extends Record<string, string | number | boolean | undefined> {
   name: string;
   email: string;
   password: string;
@@ -23,6 +23,23 @@ export interface CreateUserData {
 }
 
 export class UserService extends BaseService {
+  private usersToCleanup: Array<{ email: string; password: string }> = [];
+
+  trackUserForCleanup(email: string, password: string): void {
+    this.usersToCleanup.push({ email, password });
+  }
+
+  async cleanupTrackedUsers(): Promise<void> {
+    for (const user of this.usersToCleanup) {
+      try {
+        await this.deleteUserAccount(user.email, user.password);
+      } catch (error) {
+        console.error(`Failed to delete user ${user.email}:`, error);
+      }
+    }
+    this.usersToCleanup = [];
+  }
+
   async createUserAccount(userData: CreateUserData): Promise<UserResponse> {
     const response = await this.request.post(`${this.baseURL}${API_ENDPOINTS.CREATE_ACCOUNT}`, {
       data: this.buildFormData(userData),

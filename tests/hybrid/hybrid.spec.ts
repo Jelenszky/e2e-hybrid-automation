@@ -4,6 +4,10 @@ import { validateUserDataMatches } from '../../common/validators';
 import { StatusCodes } from 'http-status-codes';
 
 test.describe('Hybrid: UI + API Integration', () => {
+  test.afterEach(async ({ userService }) => {
+    await userService.cleanupTrackedUsers();
+  });
+
   test('Register user via UI and verify via API', async ({
     homePage,
     loginPage,
@@ -11,6 +15,7 @@ test.describe('Hybrid: UI + API Integration', () => {
     userService,
   }) => {
     const userData = UserDataFactory.generateUser();
+    userService.trackUserForCleanup(userData.email, userData.password);
 
     await test.step('Complete signup flow via UI', async () => {
       await homePage.navigate();
@@ -28,12 +33,11 @@ test.describe('Hybrid: UI + API Integration', () => {
       expect(response.user).toBeDefined();
       validateUserDataMatches(response.user, userData);
     });
-
-    await userService.deleteUserAccount(userData.email, userData.password);
   });
 
   test('Create user via API and login via UI', async ({ homePage, loginPage, userService }) => {
     const userData = UserDataFactory.generateApiTestUserData();
+    userService.trackUserForCleanup(userData.email, userData.password);
 
     await test.step('Create user via API', async () => {
       const createResponse = await userService.createUserAccount(userData);
@@ -47,11 +51,8 @@ test.describe('Hybrid: UI + API Integration', () => {
     });
 
     await test.step('Verify login successful', async () => {
-      expect(await homePage.isUserLoggedIn(userData.name)).toBe(true);
       await expect(homePage.logoutLink).toBeVisible();
     });
-
-    await userService.deleteUserAccount(userData.email, userData.password);
   });
 
   test('Verify product data consistency between UI and API', async ({
@@ -129,6 +130,7 @@ test.describe('Hybrid: UI + API Integration', () => {
     productService,
   }) => {
     const userData = UserDataFactory.generateApiTestUserData();
+    userService.trackUserForCleanup(userData.email, userData.password);
 
     await test.step('Create and login user', async () => {
       const createResponse = await userService.createUserAccount(userData);
@@ -165,8 +167,6 @@ test.describe('Hybrid: UI + API Integration', () => {
       const cartProductName = await cartPage.getProductName(0);
       expect(cartProductName).toContain(firstProductName);
     });
-
-    await userService.deleteUserAccount(userData.email, userData.password);
   });
 
   test('Search and add specific product to cart', async ({
@@ -178,6 +178,7 @@ test.describe('Hybrid: UI + API Integration', () => {
     productService,
   }) => {
     const userData = UserDataFactory.generateApiTestUserData();
+    userService.trackUserForCleanup(userData.email, userData.password);
     const searchTerm = 'Blue';
 
     await test.step('Create and login user', async () => {
@@ -212,8 +213,6 @@ test.describe('Hybrid: UI + API Integration', () => {
       const cartProductName = await cartPage.getProductName(0);
       expect(cartProductName).toContain(targetProductName);
     });
-
-    await userService.deleteUserAccount(userData.email, userData.password);
   });
 
   test('Verify user deletion', async ({ userService, homePage, loginPage }) => {

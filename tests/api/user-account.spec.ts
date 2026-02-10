@@ -6,20 +6,24 @@ import { UserResponseSchema } from '../../common/schemas';
 import { validateApiUserDataMatches } from '../../common/validators';
 
 test.describe('User Account API', () => {
+  test.afterEach(async ({ userService }) => {
+    await userService.cleanupTrackedUsers();
+  });
+
   test.describe('POST Create/Register User Account', () => {
     test('should create user account with valid data', async ({ userService }) => {
       const userData = UserDataFactory.generateApiTestUserData();
+      userService.trackUserForCleanup(userData.email, userData.password);
 
       const response = await userService.createUserAccount(userData);
 
       expect(response.responseCode).toBe(StatusCodes.CREATED);
       expect(response.message).toBe(API_MESSAGES.USER.CREATE);
-
-      await userService.deleteUserAccount(userData.email, userData.password);
     });
 
     test('should fail to create user with existing email', async ({ userService }) => {
       const userData = UserDataFactory.generateApiTestUserData();
+      userService.trackUserForCleanup(userData.email, userData.password);
 
       const firstResponse = await userService.createUserAccount(userData);
       expect(firstResponse.responseCode).toBe(StatusCodes.CREATED);
@@ -28,8 +32,6 @@ test.describe('User Account API', () => {
 
       expect(response.responseCode).toBe(StatusCodes.BAD_REQUEST);
       expect(response.message).toBe(API_MESSAGES.USER.ALREADY_EXISTS);
-
-      await userService.deleteUserAccount(userData.email, userData.password);
     });
 
     test('should fail to create user with invalid email format', async ({ userService }) => {
@@ -65,6 +67,7 @@ test.describe('User Account API', () => {
 
     test('should fail to delete with missing password', async ({ userService }) => {
       const userData = UserDataFactory.generateApiTestUserData();
+      userService.trackUserForCleanup(userData.email, userData.password);
 
       const createResponse = await userService.createUserAccount(userData);
       expect(createResponse.responseCode).toBe(StatusCodes.CREATED);
@@ -72,12 +75,11 @@ test.describe('User Account API', () => {
       const response = await userService.deleteUserAccount(userData.email, '');
 
       expect(response.responseCode).toBe(StatusCodes.NOT_FOUND);
-
-      await userService.deleteUserAccount(userData.email, userData.password);
     });
 
     test('should fail to delete with correct email but wrong password', async ({ userService }) => {
       const userData = UserDataFactory.generateApiTestUserData();
+      userService.trackUserForCleanup(userData.email, userData.password);
 
       const createResponse = await userService.createUserAccount(userData);
       expect(createResponse.responseCode).toBe(StatusCodes.CREATED);
@@ -85,14 +87,13 @@ test.describe('User Account API', () => {
       const response = await userService.deleteUserAccount(userData.email, 'WrongPassword123!');
 
       expect(response.responseCode).toBe(StatusCodes.NOT_FOUND);
-
-      await userService.deleteUserAccount(userData.email, userData.password);
     });
   });
 
   test.describe('PUT Update User Account', () => {
     test('should update existing user account', async ({ userService }) => {
       const userData = UserDataFactory.generateApiTestUserData();
+      userService.trackUserForCleanup(userData.email, userData.password);
 
       const createResponse = await userService.createUserAccount(userData);
       expect(createResponse.responseCode).toBe(StatusCodes.CREATED);
@@ -115,8 +116,6 @@ test.describe('User Account API', () => {
       expect(updatedUser.responseCode).toBe(StatusCodes.OK);
       expect(updatedUser.user.first_name).toBe(updatedData.firstname);
       expect(updatedUser.user.last_name).toBe(updatedData.lastname);
-
-      await userService.deleteUserAccount(userData.email, userData.password);
     });
 
     test('should fail to update non-existent account', async ({ userService }) => {
@@ -139,6 +138,7 @@ test.describe('User Account API', () => {
       userService,
     }) => {
       const userData = UserDataFactory.generateApiTestUserData();
+      userService.trackUserForCleanup(userData.email, userData.password);
 
       const createResponse = await userService.createUserAccount(userData);
       expect(createResponse.responseCode).toBe(StatusCodes.CREATED);
@@ -147,8 +147,6 @@ test.describe('User Account API', () => {
 
       expect(response.responseCode).toBe(StatusCodes.OK);
       validateApiUserDataMatches(response.user, userData);
-
-      await userService.deleteUserAccount(userData.email, userData.password);
     });
 
     test('should fail to get details for non-existent email', async ({ userService }) => {
@@ -163,6 +161,7 @@ test.describe('User Account API', () => {
   test.describe('GET User Account - Schema Validation', () => {
     test('should return valid user response schema', async ({ userService }) => {
       const userData = UserDataFactory.generateApiTestUserData();
+      userService.trackUserForCleanup(userData.email, userData.password);
 
       const createResponse = await userService.createUserAccount(userData);
       expect(createResponse.responseCode).toBe(StatusCodes.CREATED);
@@ -171,8 +170,6 @@ test.describe('User Account API', () => {
 
       const result = UserResponseSchema.safeParse(response);
       expect(result.success).toBe(true);
-
-      await userService.deleteUserAccount(userData.email, userData.password);
     });
   });
 });

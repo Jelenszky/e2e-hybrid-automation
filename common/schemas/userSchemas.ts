@@ -1,23 +1,25 @@
 import { z } from 'zod';
 
+const reqString = z.string().trim().min(1, { message: 'Required' });
+
 export const UserSchema = z.object({
   id: z.number().positive(),
-  name: z.string(),
-  email: z.string().email(),
-  title: z.string(),
-  birth_day: z.string(),
-  birth_month: z.string(),
-  birth_year: z.string(),
-  first_name: z.string(),
-  last_name: z.string(),
-  company: z.string().optional(),
-  address1: z.string(),
-  address2: z.string().optional(),
-  country: z.string(),
-  zipcode: z.string(),
-  state: z.string(),
-  city: z.string(),
-  mobile_number: z.string().optional(),
+  name: reqString,
+  email: z.email(),
+  title: reqString,
+  birth_day: z.coerce.number().int().min(1).max(31),
+  birth_month: z.coerce.number().int().min(1).max(12),
+  birth_year: z.coerce.number().int().min(1900),
+  first_name: reqString,
+  last_name: reqString,
+  company: z.string().trim().optional(),
+  address1: reqString,
+  address2: z.string().trim().optional(),
+  country: reqString,
+  zipcode: z.string().regex(/^\d{5}(-\d{4})?$/, { message: 'Invalid zipcode format' }),
+  state: reqString,
+  city: reqString,
+  mobile_number: z.string().trim().optional(),
 });
 
 export const UserResponseSchema = z.object({

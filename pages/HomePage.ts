@@ -61,8 +61,4 @@ export class HomePage extends BasePage {
   async navigateToContactUs(): Promise<void> {
     await this.contactUsLink.click();
   }
-
-  async isUserLoggedIn(username: string): Promise<boolean> {
-    return await this.loggedInAsText(username).isVisible();
-  }
 }

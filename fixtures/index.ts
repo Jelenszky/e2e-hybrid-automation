@@ -16,6 +16,7 @@ import {
   AuthService,
   UserService,
 } from '../services';
+import { AD_ROUTES } from '../common/constants';
 import config from '../playwright.config';
 
 type AllFixtures = {
@@ -37,6 +38,13 @@ type AllFixtures = {
 const baseURL = config.use?.baseURL;
 
 export const test = base.extend<AllFixtures>({
+  page: async ({ page }, use) => {
+    page.route(AD_ROUTES.GOOGLE_PAGEAD, (route) => route.abort());
+    page.route(AD_ROUTES.GOOGLE_ADS, (route) => route.abort());
+    page.route(AD_ROUTES.DOUBLECLICK, (route) => route.abort());
+    await use(page);
+  },
+
   homePage: async ({ page }, use) => {
     const homePage = new HomePage(page);
     await use(homePage);

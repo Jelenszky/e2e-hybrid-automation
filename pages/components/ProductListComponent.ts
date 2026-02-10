@@ -43,16 +43,7 @@ export class ProductListComponent {
   }
 
   async getAllProductNames(): Promise<string[]> {
-    const productNames: string[] = [];
-    const count = await this.getProductCount();
-
-    for (let i = 0; i < count; i++) {
-      const productName = await this.getProductName(i);
-      if (productName) {
-        productNames.push(productName.toLowerCase().trim());
-      }
-    }
-
-    return productNames;
+    const textContents = await this.productNames.allTextContents();
+    return textContents.map((name) => name.toLowerCase().trim()).filter((name) => name.length > 0);
   }
 }

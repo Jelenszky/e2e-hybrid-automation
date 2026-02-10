@@ -14,6 +14,6 @@ setup('Handle cookies and save storage state', async ({ page }) => {
     console.log('Storage state saved with cookies accepted');
   } catch (error) {
     console.error('Handling cookies and setup failed:', error);
-    process.exit(1);
+    throw error;
   }
 });

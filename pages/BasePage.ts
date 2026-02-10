@@ -1,7 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { CookieHandler } from './components';
 import { LOCATORS } from './locators';
-import { AD_ROUTES } from '../common/constants';
 
 export class BasePage {
   readonly page: Page;
@@ -45,14 +44,6 @@ export class BasePage {
     });
     this.emailInput = page.locator(LOCATORS.HOME_PAGE.EMAIL_INPUT);
     this.subscribeButton = page.locator(LOCATORS.HOME_PAGE.SUBSCRIBE_BUTTON);
-    // Block ad requests at network level
-    this.blockAdRequests();
-  }
-
-  private blockAdRequests(): void {
-    this.page.route(AD_ROUTES.GOOGLE_PAGEAD, (route) => route.abort());
-    this.page.route(AD_ROUTES.GOOGLE_ADS, (route) => route.abort());
-    this.page.route(AD_ROUTES.DOUBLECLICK, (route) => route.abort());
   }
 
   async acceptCookiesIfPresent(): Promise<void> {

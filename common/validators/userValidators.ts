@@ -1,23 +1,12 @@
 import { expect } from '@playwright/test';
 import { UserRegistrationData, ApiTestUserData } from '../testData';
-import { UserResponseSchemaType } from '../schemas';
-
-function validateUserFields(
-  responseUser: Partial<UserResponseSchemaType['user']>,
-  fieldMappings: Record<string, string | undefined>
-): void {
-  Object.entries(fieldMappings).forEach(([responseField, expectedValue]) => {
-    if (expectedValue !== undefined) {
-      expect(responseUser[responseField as keyof typeof responseUser]).toBe(expectedValue);
-    }
-  });
-}
+import { User } from '../../services/types';
 
 export function validateUserDataMatches(
-  responseUser: Partial<UserResponseSchemaType['user']>,
+  responseUser: Partial<User>,
   expectedData: UserRegistrationData
 ): void {
-  validateUserFields(responseUser, {
+  expect(responseUser).toMatchObject({
     email: expectedData.email,
     name: expectedData.name,
     first_name: expectedData.firstName,
@@ -37,10 +26,10 @@ export function validateUserDataMatches(
 }
 
 export function validateApiUserDataMatches(
-  responseUser: Partial<UserResponseSchemaType['user']>,
+  responseUser: Partial<User>,
   expectedData: ApiTestUserData
 ): void {
-  validateUserFields(responseUser, {
+  expect(responseUser).toMatchObject({
     email: expectedData.email,
     name: expectedData.name,
     first_name: expectedData.firstname,
