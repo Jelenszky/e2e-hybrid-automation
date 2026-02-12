@@ -7,11 +7,11 @@ export { ServiceFactory } from './utils/ServiceFactory';
 export type {
   Product,
   Brand,
-  User,
   ApiResponse,
   UserResponse,
   LoginResponse,
   ProductResponse,
   BrandResponse,
   SearchProductResponse,
+  UserResponseData,
 } from './types';

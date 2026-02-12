@@ -1,49 +1,56 @@
 import { expect } from '@playwright/test';
-import { UserRegistrationData, ApiTestUserData } from '../testData';
-import { User } from '../../services/types';
+import { User, UserRequestData } from '../testData';
+import { UserResponseData } from '../../services/types';
 
-export function validateUserDataMatches(
-  responseUser: Partial<User>,
-  expectedData: UserRegistrationData
-): void {
-  expect(responseUser).toMatchObject({
-    email: expectedData.email,
-    name: expectedData.name,
-    first_name: expectedData.firstName,
-    last_name: expectedData.lastName,
-    title: expectedData.title,
-    birth_day: expectedData.dateOfBirth.day,
-    birth_month: expectedData.dateOfBirth.month,
-    birth_year: expectedData.dateOfBirth.year,
-    address1: expectedData.address.address1,
-    address2: expectedData.address.address2,
-    country: expectedData.address.country,
-    state: expectedData.address.state,
-    city: expectedData.address.city,
-    zipcode: expectedData.address.zipcode,
-    company: expectedData.address.company,
-  });
+function mapUserToResponseFormat(data: User): Omit<UserResponseData, 'id'> {
+  return {
+    email: data.email,
+    name: data.name,
+    first_name: data.firstName,
+    last_name: data.lastName,
+    title: data.title,
+    birth_day: data.dateOfBirth.day,
+    birth_month: data.dateOfBirth.month,
+    birth_year: data.dateOfBirth.year,
+    address1: data.address.address1,
+    address2: data.address.address2!,
+    country: data.address.country,
+    state: data.address.state,
+    city: data.address.city,
+    zipcode: data.address.zipcode,
+    company: data.address.company!,
+  };
+}
+
+function mapUserRequestToResponseFormat(data: UserRequestData): Omit<UserResponseData, 'id'> {
+  return {
+    email: data.email,
+    name: data.name,
+    first_name: data.firstname,
+    last_name: data.lastname,
+    title: data.title,
+    birth_day: data.birth_date,
+    birth_month: data.birth_month,
+    birth_year: data.birth_year,
+    address1: data.address1,
+    address2: data.address2!,
+    country: data.country,
+    state: data.state,
+    city: data.city,
+    zipcode: data.zipcode,
+    company: data.company!,
+  };
+}
+
+export function validateUserDataMatches(responseUser: UserResponseData, expectedData: User): void {
+  const expectedResponse = mapUserToResponseFormat(expectedData);
+  expect(responseUser).toMatchObject(expectedResponse);
 }
 
 export function validateApiUserDataMatches(
-  responseUser: Partial<User>,
-  expectedData: ApiTestUserData
+  responseUser: UserResponseData,
+  expectedData: UserRequestData
 ): void {
-  expect(responseUser).toMatchObject({
-    email: expectedData.email,
-    name: expectedData.name,
-    first_name: expectedData.firstname,
-    last_name: expectedData.lastname,
-    title: expectedData.title,
-    birth_day: expectedData.birth_date,
-    birth_month: expectedData.birth_month,
-    birth_year: expectedData.birth_year,
-    address1: expectedData.address1,
-    address2: expectedData.address2,
-    country: expectedData.country,
-    state: expectedData.state,
-    city: expectedData.city,
-    zipcode: expectedData.zipcode,
-    company: expectedData.company,
-  });
+  const expectedResponse = mapUserRequestToResponseFormat(expectedData);
+  expect(responseUser).toMatchObject(expectedResponse);
 }

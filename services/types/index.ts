@@ -16,24 +16,23 @@ export interface Brand {
   brand: string;
 }
 
-export interface User {
+export interface UserResponseData {
   id: number;
   name: string;
   email: string;
-  title?: string;
-  birth_day?: string;
-  birth_month?: string;
-  birth_year?: string;
-  first_name?: string;
-  last_name?: string;
-  company?: string;
-  address1?: string;
-  address2?: string;
-  country?: string;
-  zipcode?: string;
-  state?: string;
-  city?: string;
-  mobile_number?: string;
+  first_name: string;
+  last_name: string;
+  title: string;
+  birth_day: string;
+  birth_month: string;
+  birth_year: string;
+  company: string;
+  address1: string;
+  address2: string;
+  country: string;
+  state: string;
+  city: string;
+  zipcode: string;
 }
 
 export interface ApiResponse {
@@ -42,7 +41,7 @@ export interface ApiResponse {
 }
 
 export interface UserResponse extends ApiResponse {
-  user: User;
+  user: UserResponseData;
 }
 
 export interface LoginResponse extends ApiResponse {

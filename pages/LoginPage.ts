@@ -1,7 +1,7 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 import { LOCATORS } from './locators';
-import { UserRegistrationData } from '../common/testData';
+import { User } from '../common/testData';
 
 export class LoginPage extends BasePage {
   readonly loginSection: Locator;
@@ -99,7 +99,7 @@ export class LoginPage extends BasePage {
     await this.signupButton.click();
   }
 
-  async fillSignupForm(user: UserRegistrationData): Promise<void> {
+  async fillSignupForm(user: User): Promise<void> {
     if (user.title === 'Mr') {
       await this.titleMrRadio.check();
     } else {
