@@ -106,40 +106,16 @@ export class UserDataFactory {
   }
 
   /**
-   * Generate a realistic date of birth (age 18-65, years within form's range 1900-2021)
-   * Ensures the generated date is valid (no Feb 30, etc.)
+   * Generate a realistic date of birth (age 18-65)
    * Returns numeric format for dropdown selection
    */
   private static generateDateOfBirth(): User['dateOfBirth'] {
-    // Generate a valid birthdate within age range
     const birthDate = faker.date.birthdate({ min: 18, max: 65, mode: 'age' });
 
-    // Constrain year to form's range (1900-2021)
-    let year = birthDate.getFullYear();
-    if (year < 1900) year = faker.number.int({ min: 1900, max: 2000 });
-    if (year > 2021) year = faker.number.int({ min: 1960, max: 2003 });
-
-    // Get month and day from generated date
-    const month = birthDate.getMonth(); // 0-11
-    let day = birthDate.getDate(); // 1-31
-
-    // Validate and fix invalid day/month combinations
-    // Max days per month: [31, 28/29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    const isLeapYear = (y: number) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
-    const daysInMonth = [31, isLeapYear(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-
-    if (day > daysInMonth[month]) {
-      day = daysInMonth[month]; // Cap day to valid range for the month
-    }
-
-    // Create final validated date
-    const validDate = new Date(year, month, day);
-
-    // Form dropdowns expect numeric values: day (1-31), month (1-12), year (YYYY)
     return {
-      day: String(validDate.getDate()),
-      month: String(validDate.getMonth() + 1), // JavaScript months are 0-11, form expects 1-12
-      year: String(validDate.getFullYear()),
+      day: String(birthDate.getDate()),
+      month: String(birthDate.getMonth() + 1), // JavaScript months are 0-11, form expects 1-12
+      year: String(birthDate.getFullYear()),
     };
   }
 

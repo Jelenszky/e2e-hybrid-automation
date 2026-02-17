@@ -44,6 +44,9 @@ export class ProductListComponent {
 
   async getAllProductNames(): Promise<string[]> {
     const textContents = await this.productNames.allTextContents();
-    return textContents.map((name) => name.toLowerCase().trim()).filter((name) => name.length > 0);
+    return textContents.flatMap((name) => {
+      const cleaned = name.toLowerCase().trim();
+      return cleaned ? [cleaned] : [];
+    });
   }
 }
