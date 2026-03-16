@@ -1,0 +1,15 @@
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/cookies/.cookies/
+
+# Copilot Instructions (local only)
+.github/copilot-instructions.md
+
+# Allure
+/allure-results/
+/allure-report/
